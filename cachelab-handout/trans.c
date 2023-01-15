@@ -22,6 +22,103 @@ int is_transpose(int M, int N, int A[N][M], int B[M][N]);
 char transpose_submit_desc[] = "Transpose submission";
 void transpose_submit(int M, int N, int A[N][M], int B[M][N])
 {
+    int i, j, ki, kj, xi, xj, v0, v1, v2;
+    if (M == 32) { // blocking + delay diagonal storage
+        for (i = 0; i < N; i+=8) {
+            for (j = 0; j < M; j+=8) {
+                for (ki = i; ki < i + 8; ki++) {
+                    for (kj = j; kj < j + 8; kj++) {
+                        if ((ki & 7) == (kj & 7)) {
+                           if ((ki & 3) == 0) v0 = A[ki][kj];
+                           else if ((ki & 3) == 1) v1 = A[ki][kj];
+                           else if ((ki & 3) == 2) v2 = A[ki][kj];
+                           else {
+                                B[kj][ki] = A[ki][kj];
+                                B[kj - 1][ki - 1] = v2;
+                                B[kj - 2][ki - 2] = v1;
+                                B[kj - 3][ki - 3] = v0;
+                           }
+                           continue;
+                        }
+                        B[kj][ki] = A[ki][kj];
+                    }
+                }
+            }
+        }
+    }
+    else if (M == 64) { // blocking + order of block processing + specialized for diagonals
+        for (xi = 0; xi < N; xi+=8) {
+            for (xj = 0; xj < M; xj+=8) {
+                if (xi == xj) {
+                    for (j = xj; j < xj + 8; j += 4) {
+                        for (i = xi; i < xi + 4; i++) {
+                            ki = i;
+                            for (kj = j; kj < j + 4; kj++) {
+                                if ((ki & 3) == (kj & 3)) {
+                                    v0 = kj;
+                                    v1 = A[ki][kj];
+                                    continue;
+                                }
+                                B[kj][ki] = A[ki][kj];
+                            }
+                            ki = i + 4;
+                            for (kj = j; kj < j + 4; kj++) {
+                                if ((ki & 3) == (kj & 3)) {
+                                    v2 = A[ki][kj];
+                                    continue;
+                                }
+                                B[kj][ki] = A[ki][kj];
+                            }
+                            B[v0][i] = v1;
+                            B[v0][i + 4] = v2; 
+                        } 
+                    }
+                }
+                else {
+                    i = xi;
+                    j = xj;
+                    for (ki = i; ki < i + 4; ki++) {
+                        for (kj = j; kj < j + 4; kj++) {
+                            B[kj][ki] = A[ki][kj];
+                        }
+                    }
+                    i = xi + 4;
+                    j = xj;
+                    for (ki = i; ki < i + 4; ki++) {
+                        for (kj = j; kj < j + 4; kj++) {
+                            B[kj][ki] = A[ki][kj];
+                        }
+                    }
+                    i = xi + 4;
+                    j = xj + 4;
+                    for (ki = i; ki < i + 4; ki++) {
+                        for (kj = j; kj < j + 4; kj++) {
+                            B[kj][ki] = A[ki][kj];
+                        }
+                    }
+                    i = xi;
+                    j = xj + 4;
+                    for (ki = i; ki < i + 4; ki++) {
+                        for (kj = j; kj < j + 4; kj++) {
+                            B[kj][ki] = A[ki][kj];
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else if (M == 61) { // blocking alone is sufficient
+        v0 = 14; v1 = 14;
+        for (i = 0; i < N; i+=v0) {
+            for (j = 0; j < M; j+=v1) {
+                for (ki = i; ki < i + v0 && ki < N; ki++) {
+                    for (kj = j; kj < j + v1 && kj < M; kj++) {
+                        B[kj][ki] = A[ki][kj];
+                    }
+                }
+            }
+        }
+    }
 }
 
 /* 

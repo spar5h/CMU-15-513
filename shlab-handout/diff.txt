@@ -1,0 +1,218 @@
+15c15
+< [1] (15264) ./myspin 1 &
+---
+> [1] (15468) ./myspin 1 &
+20c20
+< [1] (15270) ./myspin 2 &
+---
+> [1] (15474) ./myspin 2 &
+22c22
+< [2] (15272) ./myspin 3 &
+---
+> [2] (15476) ./myspin 3 &
+24,25c24,25
+< [1] (15270) Running ./myspin 2 &
+< [2] (15272) Running ./myspin 3 &
+---
+> [1] (15474) Running ./myspin 2 &
+> [2] (15476) Running ./myspin 3 &
+30c30
+< Job [1] (15283) terminated by signal 2
+---
+> Job [1] (15484) terminated by signal 2
+35c35
+< [1] (15290) ./myspin 4 &
+---
+> [1] (15491) ./myspin 4 &
+37c37
+< Job [2] (15292) terminated by signal 2
+---
+> Job [2] (15493) terminated by signal 2
+39c39
+< [1] (15290) Running ./myspin 4 &
+---
+> [1] (15491) Running ./myspin 4 &
+44c44
+< [1] (15301) ./myspin 4 &
+---
+> [1] (15502) ./myspin 4 &
+46c46
+< Job [2] (15303) stopped by signal 20
+---
+> Job [2] (15504) stopped by signal 20
+48,49c48,49
+< [1] (15301) Running ./myspin 4 &
+< [2] (15303) Stopped ./myspin 5 
+---
+> [1] (15502) Running ./myspin 4 &
+> [2] (15504) Stopped ./myspin 5 
+54c54
+< [1] (15312) ./myspin 4 &
+---
+> [1] (15513) ./myspin 4 &
+56c56
+< Job [2] (15314) stopped by signal 20
+---
+> Job [2] (15515) stopped by signal 20
+58,59c58,59
+< [1] (15312) Running ./myspin 4 &
+< [2] (15314) Stopped ./myspin 5 
+---
+> [1] (15513) Running ./myspin 4 &
+> [2] (15515) Stopped ./myspin 5 
+61c61
+< [2] (15314) ./myspin 5 
+---
+> [2] (15515) ./myspin 5 
+63,64c63,64
+< [1] (15312) Running ./myspin 4 &
+< [2] (15314) Running ./myspin 5 
+---
+> [1] (15513) Running ./myspin 4 &
+> [2] (15515) Running ./myspin 5 
+69c69
+< [1] (15331) ./myspin 4 &
+---
+> [1] (15528) ./myspin 4 &
+71c71
+< Job [1] (15331) stopped by signal 20
+---
+> Job [1] (15528) stopped by signal 20
+73c73
+< [1] (15331) Stopped ./myspin 4 &
+---
+> [1] (15528) Stopped ./myspin 4 &
+80c80
+< Job [1] (15356) terminated by signal 2
+---
+> Job [1] (15540) terminated by signal 2
+88,91c88,91
+< 15352 pts/1    SN+    0:00 /usr/bin/perl ./sdriver.pl -t trace11.txt -s ./tsh -a -p
+< 15353 pts/1    SN+    0:00 cat
+< 15354 pts/1    SN+    0:00 ./tsh -p
+< 15366 pts/1    RN     0:00 /bin/ps a
+---
+> 15536 pts/1    SN+    0:00 /usr/bin/perl ./sdriver.pl -t trace11.txt -s ./tshref -a -p
+> 15537 pts/1    SN+    0:00 cat
+> 15538 pts/1    SN+    0:00 ./tshref -p
+> 15545 pts/1    RN     0:00 /bin/ps a
+96c96
+< Job [1] (15371) stopped by signal 20
+---
+> Job [1] (15550) stopped by signal 20
+98c98
+< [1] (15371) Stopped ./mysplit 4 
+---
+> [1] (15550) Stopped ./mysplit 4 
+106,111c106,111
+< 15367 pts/1    SN+    0:00 /usr/bin/perl ./sdriver.pl -t trace12.txt -s ./tsh -a -p
+< 15368 pts/1    SN+    0:00 cat
+< 15369 pts/1    SN+    0:00 ./tsh -p
+< 15371 pts/1    TN     0:00 ./mysplit 4
+< 15372 pts/1    TN     0:00 ./mysplit 4
+< 15376 pts/1    RN     0:00 /bin/ps a
+---
+> 15546 pts/1    SN+    0:00 /usr/bin/perl ./sdriver.pl -t trace12.txt -s ./tshref -a -p
+> 15547 pts/1    SN+    0:00 cat
+> 15548 pts/1    SN+    0:00 ./tshref -p
+> 15550 pts/1    TN     0:00 ./mysplit 4
+> 15551 pts/1    TN     0:00 ./mysplit 4
+> 15555 pts/1    RN     0:00 /bin/ps a
+116c116
+< Job [1] (15382) stopped by signal 20
+---
+> Job [1] (15560) stopped by signal 20
+118c118
+< [1] (15382) Stopped ./mysplit 4 
+---
+> [1] (15560) Stopped ./mysplit 4 
+126,131c126,131
+< 15378 pts/1    SN+    0:00 /usr/bin/perl ./sdriver.pl -t trace13.txt -s ./tsh -a -p
+< 15379 pts/1    SN+    0:00 cat
+< 15380 pts/1    SN+    0:00 ./tsh -p
+< 15382 pts/1    TN     0:00 ./mysplit 4
+< 15383 pts/1    TN     0:00 ./mysplit 4
+< 15387 pts/1    RN     0:00 /bin/ps a
+---
+> 15556 pts/1    SN+    0:00 /usr/bin/perl ./sdriver.pl -t trace13.txt -s ./tshref -a -p
+> 15557 pts/1    SN+    0:00 cat
+> 15558 pts/1    SN+    0:00 ./tshref -p
+> 15560 pts/1    TN     0:00 ./mysplit 4
+> 15561 pts/1    TN     0:00 ./mysplit 4
+> 15566 pts/1    RN     0:00 /bin/ps a
+140,143c140,143
+< 15378 pts/1    SN+    0:00 /usr/bin/perl ./sdriver.pl -t trace13.txt -s ./tsh -a -p
+< 15379 pts/1    SN+    0:00 cat
+< 15380 pts/1    SN+    0:00 ./tsh -p
+< 15393 pts/1    RN     0:00 /bin/ps a
+---
+> 15556 pts/1    SN+    0:00 /usr/bin/perl ./sdriver.pl -t trace13.txt -s ./tshref -a -p
+> 15557 pts/1    SN+    0:00 cat
+> 15558 pts/1    SN+    0:00 ./tshref -p
+> 15570 pts/1    RN     0:00 /bin/ps a
+150c150
+< [1] (15400) ./myspin 4 &
+---
+> [1] (15577) ./myspin 4 &
+166c166
+< Job [1] (15400) stopped by signal 20
+---
+> Job [1] (15577) stopped by signal 20
+170c170
+< [1] (15400) ./myspin 4 &
+---
+> [1] (15577) ./myspin 4 &
+172c172
+< [1] (15400) Running ./myspin 4 &
+---
+> [1] (15577) Running ./myspin 4 &
+179c179
+< Job [1] (15421) terminated by signal 2
+---
+> Job [1] (15599) terminated by signal 2
+181c181
+< [1] (15425) ./myspin 3 &
+---
+> [1] (15602) ./myspin 3 &
+183c183
+< [2] (15427) ./myspin 4 &
+---
+> [2] (15604) ./myspin 4 &
+185,186c185,186
+< [1] (15425) Running ./myspin 3 &
+< [2] (15427) Running ./myspin 4 &
+---
+> [1] (15602) Running ./myspin 3 &
+> [2] (15604) Running ./myspin 4 &
+188c188
+< Job [1] (15425) stopped by signal 20
+---
+> Job [1] (15602) stopped by signal 20
+190,191c190,191
+< [1] (15425) Stopped ./myspin 3 &
+< [2] (15427) Running ./myspin 4 &
+---
+> [1] (15602) Stopped ./myspin 3 &
+> [2] (15604) Running ./myspin 4 &
+195c195
+< [1] (15425) ./myspin 3 &
+---
+> [1] (15602) ./myspin 3 &
+197,198c197,198
+< [1] (15425) Running ./myspin 3 &
+< [2] (15427) Running ./myspin 4 &
+---
+> [1] (15602) Running ./myspin 3 &
+> [2] (15604) Running ./myspin 4 &
+206c206
+< Job [1] (15444) stopped by signal 20
+---
+> Job [1] (15621) stopped by signal 20
+208c208
+< [1] (15444) Stopped ./mystop 2
+---
+> [1] (15621) Stopped ./mystop 2
+210c210
+< Job [2] (15449) terminated by signal 2
+---
+> Job [2] (15626) terminated by signal 2

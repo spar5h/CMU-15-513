@@ -6,7 +6,7 @@ Self Study Labs: http://csapp.cs.cmu.edu/3e/labs.html
 - [x] Lab 2: bomb lab (70/70)
 - [x] Lab 3: attack lab (95/100)
 - [x] Lab 4: cache lab (52.3/53)
-- [ ] Lab 5: shell lab
+- [x] Lab 5: shell lab (80/80)
 - [ ] Lab 6: malloc lab
 - [ ] Lab 7: proxy lab
 

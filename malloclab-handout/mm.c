@@ -10,10 +10,6 @@
 #include "mm.h"
 #include "memlib.h"
 
-/*********************************************************
- * NOTE TO STUDENTS: Before you do anything else, please
- * provide your team information in the following struct.
- ********************************************************/
 team_t team = {
     /* Team name */
     "spar5h",
@@ -62,6 +58,8 @@ team_t team = {
 
 
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
+
+#define MAX_HEAP (20*(1<<20))  /* 20 MB */
 
 /* GLOBALS */
 char* heap_listp;
@@ -143,12 +141,16 @@ void *mm_malloc(size_t size) {
 
 static void *find_fit(size_t asize) {
     char *bp = heap_listp;
+    char *best_fit_p = NULL;
+    size_t best_fit_size = MAX_HEAP;
     while (GET_SIZE(HDRP(bp)) != 0) {
-        if (GET_SIZE(HDRP(bp)) >= asize && !GET_ALLOC(HDRP(bp))) 
-            return bp;
+        if (GET_SIZE(HDRP(bp)) >= asize && GET_SIZE(HDRP(bp)) < best_fit_size && !GET_ALLOC(HDRP(bp))) {
+            best_fit_p = bp;
+            best_fit_size = GET_SIZE(HDRP(bp));
+        }
         bp = NEXT_BLKP(bp);
     }
-    return NULL;
+    return best_fit_p;
 }
 
 static void *place(void *bp, size_t asize) {

@@ -1,5 +1,5 @@
 /*
- * implicit list, no optimizations, first fit
+ * explicit list, best fit
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,6 +44,8 @@ team_t team = {
 /* Given block ptr bp, compute address of its header and footer */
 #define HDRP(bp)       ((char *)(bp) - WSIZE)
 #define FTRP(bp)       ((char *)(bp) + GET_SIZE(HDRP(bp)) - DSIZE)
+#define PREV_PTR(bp)   ((char *)(bp))
+#define NEXT_PTR(bp)   ((char *)(bp) + WSIZE)
 
 /* Given block ptr bp, compute address of next and previous blocks */
 #define NEXT_BLKP(bp)  ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE)))
@@ -63,17 +65,23 @@ team_t team = {
 
 /* GLOBALS */
 char* heap_listp;
+char* rootp;
 
 /* DECLARATIONS */
 static void *extend_heap(size_t words);
 static void *coalesce(void *bp);
 static void *find_fit(size_t asize);
 static void *place(void *bp, size_t asize);
+static void *fl_unlink(void *bp);
+static void *fl_link_front(void *bp);
 
 /* 
  * mm_init - initialize the malloc package.
  */
 int mm_init(void) {
+    /* Set root of explicit free list to NULL */
+    rootp = NULL;
+
     /* Create the initial empty heap */
     if ((heap_listp = mem_sbrk(4*WSIZE)) == (void *)-1)
         return -1;
@@ -140,15 +148,15 @@ void *mm_malloc(size_t size) {
 }
 
 static void *find_fit(size_t asize) {
-    char *bp = heap_listp;
+    char *bp = rootp;
     char *best_fit_p = NULL;
     size_t best_fit_size = MAX_HEAP;
-    while (GET_SIZE(HDRP(bp)) != 0) {
+    while (bp != NULL) {
         if (GET_SIZE(HDRP(bp)) >= asize && GET_SIZE(HDRP(bp)) < best_fit_size && !GET_ALLOC(HDRP(bp))) {
             best_fit_p = bp;
             best_fit_size = GET_SIZE(HDRP(bp));
         }
-        bp = NEXT_BLKP(bp);
+        bp = (char *) GET(NEXT_PTR(bp));
     }
     return best_fit_p;
 }
@@ -157,13 +165,16 @@ static void *place(void *bp, size_t asize) {
     size_t fsize = GET_SIZE(HDRP(bp));
     char *old_bp = bp;
     if (fsize - asize >= MIN_BLOCKSIZE) {
+        fl_unlink(bp);
         PUT(HDRP(bp), PACK(asize, 1));
         PUT(FTRP(bp), PACK(asize, 1));
         bp = NEXT_BLKP(bp);
         PUT(HDRP(bp), PACK(fsize - asize, 0));
         PUT(FTRP(bp), PACK(fsize - asize, 0));
+        fl_link_front(bp);
     }
     else {
+        fl_unlink(bp);
         PUT(HDRP(bp), PACK(fsize, 1));
         PUT(FTRP(bp), PACK(fsize, 1));
     }
@@ -186,26 +197,59 @@ static void *coalesce(void *bp) {
     size_t next_alloc = GET_ALLOC(HDRP(NEXT_BLKP(bp)));
     size_t size = GET_SIZE(HDRP(bp));
     if (prev_alloc && next_alloc) {
+        fl_link_front(bp);
         return bp;
     }
     else if (prev_alloc && !next_alloc) {
         size += GET_SIZE(HDRP(NEXT_BLKP(bp)));
+        fl_unlink(NEXT_BLKP(bp));
         PUT(HDRP(bp), PACK(size, 0));
         PUT(FTRP(bp), PACK(size, 0));
+        fl_link_front(bp);
     }
     else if (!prev_alloc && next_alloc) {
         size += GET_SIZE(HDRP(PREV_BLKP(bp)));
+        fl_unlink(PREV_BLKP(bp));
         PUT(FTRP(bp), PACK(size, 0));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
+        fl_link_front(bp);
     }
     else {
         size += GET_SIZE(HDRP(PREV_BLKP(bp))) +
             GET_SIZE(FTRP(NEXT_BLKP(bp)));
+        fl_unlink(PREV_BLKP(bp));
+        fl_unlink(NEXT_BLKP(bp));
         PUT(HDRP(PREV_BLKP(bp)), PACK(size, 0));
         PUT(FTRP(NEXT_BLKP(bp)), PACK(size, 0));
         bp = PREV_BLKP(bp);
+        fl_link_front(bp);
     }
+    return bp;
+}
+
+static void *fl_unlink(void *bp) {
+    char *prev_fb = (char *) GET(PREV_PTR(bp));
+    char *next_fb = (char *) GET(NEXT_PTR(bp));
+    if (prev_fb != NULL) {
+        PUT(NEXT_PTR(prev_fb), (unsigned int)next_fb);
+    }
+    if (next_fb != NULL) {
+        PUT(PREV_PTR(next_fb), (unsigned int)prev_fb);
+    }
+    if (rootp == bp) {
+        rootp = next_fb;
+    }
+    return bp;
+}
+
+static void *fl_link_front(void *bp) {
+    PUT(PREV_PTR(bp), (unsigned int)NULL);
+    PUT(NEXT_PTR(bp), (unsigned int)rootp);
+    if (rootp != NULL) {
+        PUT(PREV_PTR(rootp), (unsigned int)bp);
+    }
+    rootp = bp;
     return bp;
 }
 

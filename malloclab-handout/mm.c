@@ -1,5 +1,6 @@
 /*
  * explicit list, best fit
+ * assumes 32 bit system (m32 flag in Makefile)
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,15 +149,15 @@ void *mm_malloc(size_t size) {
 }
 
 static void *find_fit(size_t asize) {
-    char *bp = rootp;
+    char *bp = NULL;
     char *best_fit_p = NULL;
-    size_t best_fit_size = MAX_HEAP;
-    while (bp != NULL) {
-        if (GET_SIZE(HDRP(bp)) >= asize && GET_SIZE(HDRP(bp)) < best_fit_size) {
+    size_t tsize;
+    for (bp = rootp; bp != NULL; bp = (char *) GET(NEXT_PTR(bp))) {
+        tsize = GET_SIZE(HDRP(bp));
+        if (tsize < asize) continue;
+        if (best_fit_p == NULL || bp < best_fit_p) {
             best_fit_p = bp;
-            best_fit_size = GET_SIZE(HDRP(bp));
         }
-        bp = (char *) GET(NEXT_PTR(bp));
     }
     return best_fit_p;
 }

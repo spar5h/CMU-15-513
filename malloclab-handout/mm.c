@@ -1,6 +1,9 @@
 /*
- * explicit list, best fit
+ * explicit list, lowest address block that fits, optimized realloc
+ * Perf index = 50 (util) + 40 (thru) = 90/100 on CIMS crackle3
+ *
  * assumes 32 bit system (m32 flag in Makefile)
+ * potential improvements: segregated free lists, add heap checker
  */
 #include <stdio.h>
 #include <stdlib.h>

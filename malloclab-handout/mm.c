@@ -152,7 +152,7 @@ static void *find_fit(size_t asize) {
     char *best_fit_p = NULL;
     size_t best_fit_size = MAX_HEAP;
     while (bp != NULL) {
-        if (GET_SIZE(HDRP(bp)) >= asize && GET_SIZE(HDRP(bp)) < best_fit_size && !GET_ALLOC(HDRP(bp))) {
+        if (GET_SIZE(HDRP(bp)) >= asize && GET_SIZE(HDRP(bp)) < best_fit_size) {
             best_fit_p = bp;
             best_fit_size = GET_SIZE(HDRP(bp));
         }
@@ -256,19 +256,49 @@ static void *fl_link_front(void *bp) {
 /*
  * mm_realloc - Implemented simply in terms of mm_malloc and mm_free
  */
-void *mm_realloc(void *ptr, size_t size) {
-    void *oldptr = ptr;
+void *mm_realloc(void *bp, size_t size) {
     void *newptr;
-    size_t copySize;
+    size_t asize;
+    size_t fsize;
+    size_t copy_size;
+
+    /* Ignore spurious requests */
+    if (size == 0)
+        return NULL;
+
+    /* Adjust block size to include overhead and alignment reqs. */
+    if (size <= DSIZE)
+        asize = 2*DSIZE;
+    else
+        asize = DSIZE * ((size + (DSIZE) + (DSIZE-1)) / DSIZE);
+
+    fsize = GET_SIZE(HDRP(bp)) + GET_SIZE(HDRP(NEXT_BLKP(bp)));
+
+    if (!GET_ALLOC(HDRP(NEXT_BLKP(bp))) && fsize >= asize) {
+        if (fsize - asize >= MIN_BLOCKSIZE) {
+            fl_unlink(NEXT_BLKP(bp));
+            PUT(HDRP(bp), PACK(asize, 1));
+            PUT(FTRP(bp), PACK(asize, 1));
+            PUT(HDRP(NEXT_BLKP(bp)), PACK(fsize - asize, 0));
+            PUT(FTRP(NEXT_BLKP(bp)), PACK(fsize - asize, 0));
+            fl_link_front(NEXT_BLKP(bp));
+        }
+        else {
+            fl_unlink(NEXT_BLKP(bp));
+            PUT(HDRP(bp), PACK(fsize, 1));
+            PUT(FTRP(bp), PACK(fsize, 1));
+        }
+        return bp;
+    }
     
     newptr = mm_malloc(size);
     if (newptr == NULL)
       return NULL;
-    copySize = GET_SIZE(HDRP(oldptr));
-    if (size < copySize)
-      copySize = size;
-    memcpy(newptr, oldptr, copySize);
-    mm_free(oldptr);
+    copy_size = GET_SIZE(HDRP(bp));
+    if (size < copy_size)
+        copy_size = size;
+    memcpy(newptr, bp, copy_size);
+    mm_free(bp);
     return newptr;
 }
 
